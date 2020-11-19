@@ -1,0 +1,9 @@
+server:
+  port: 11100
+
+spring:
+  cloud:
+    stream:
+      function:
+        routing:
+          enabled: true
