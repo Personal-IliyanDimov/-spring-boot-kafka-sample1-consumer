@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class AuctionBidEvent {
+    private Long auctionBidId;
     private Long auctionId;
     private Long userId;
     private BigDecimal bidPrice;
