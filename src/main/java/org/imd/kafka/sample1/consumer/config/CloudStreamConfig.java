@@ -16,7 +16,7 @@ import reactor.core.publisher.Flux;
 import java.util.function.Consumer;
 
 @Configuration
-public class TopicConfig {
+public class CloudStreamConfig {
 
     @Autowired
     private AuctionService auctionService;

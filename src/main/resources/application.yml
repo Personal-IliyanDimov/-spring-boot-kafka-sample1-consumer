@@ -2,17 +2,20 @@ spring:
   cloud:
     stream:
       function:
-#        routing:
-#          enabled: true
         bindings:
-          auctionSupplier-out-0: auction-consumer
-          auctionBidSupplier-out-0: auction-bid-consumer
+          auctionEventConsumer-out-0: auction-consumer
+          auctionBidEventConsumer-out-0: auction-bid-consumer
 
       bindings:
         auction-consumer:
           consumer:
             partitioned: true
+
+
+          group: auction-group
+          destination:
         auction-bid-consumer:
           consumer:
             partitioned: true
+          group: auction-bid-group
 
