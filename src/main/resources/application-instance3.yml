@@ -1,2 +1,8 @@
 server:
   port: 11230
+
+spring:
+  cloud:
+    stream:
+      instanceIndex: 2
+      instanceCount: 3
