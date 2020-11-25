@@ -19,3 +19,12 @@ spring:
             partitioned: true
           group: auction-bid-group
 
+      kafka:
+        bindings:
+          auction-consumer:
+            consumer:
+              autoRebalanceEnabled: false
+
+          auction-bid-consumer:
+            consumer:
+              autoRebalanceEnabled: false
