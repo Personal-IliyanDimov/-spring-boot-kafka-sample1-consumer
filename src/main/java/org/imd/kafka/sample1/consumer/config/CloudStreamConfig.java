@@ -26,7 +26,6 @@ public class CloudStreamConfig {
 
     @Bean
     public RoutingFunction routingFunction() {
-
         return null;
     }
 

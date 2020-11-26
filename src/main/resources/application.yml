@@ -2,6 +2,7 @@ spring:
   cloud:
     stream:
       function:
+        definition: auctionEventConsumer;auctionBidEventConsumer;
         bindings:
           auctionEventConsumer-out-0: auction-consumer
           auctionBidEventConsumer-out-0: auction-bid-consumer
@@ -11,13 +12,15 @@ spring:
           consumer:
             partitioned: true
 
-
           group: auction-group
-          destination:
+          destination: "auction-topic"
+          binder: kafka
         auction-bid-consumer:
           consumer:
             partitioned: true
           group: auction-bid-group
+          destination: "auction-bid-topic"
+          binder: kafka
 
       kafka:
         bindings:
@@ -28,3 +31,13 @@ spring:
           auction-bid-consumer:
             consumer:
               autoRebalanceEnabled: false
+            binder: kafka
+
+        binder:
+          brokers:
+            - localhost:9092
+            - localhost:9093
+            - localhost:9094
+          auto-create-topics: false
+          configuration:
+            security.protocol: "PLAINTEXT"
