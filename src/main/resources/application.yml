@@ -4,8 +4,8 @@ spring:
       function:
         definition: auctionEventConsumer;auctionBidEventConsumer;
         bindings:
-          auctionEventConsumer-out-0: auction-consumer
-          auctionBidEventConsumer-out-0: auction-bid-consumer
+          auctionEventConsumer-in-0: auction-consumer
+          auctionBidEventConsumer-in-0: auction-bid-consumer
 
       bindings:
         auction-consumer:
