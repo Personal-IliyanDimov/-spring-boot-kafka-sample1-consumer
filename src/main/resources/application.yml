@@ -35,9 +35,9 @@ spring:
 
         binder:
           brokers:
-            - localhost:9092
-            - localhost:9093
             - localhost:9094
+            - localhost:9095
+            - localhost:9096
           auto-create-topics: false
           configuration:
             security.protocol: "PLAINTEXT"
