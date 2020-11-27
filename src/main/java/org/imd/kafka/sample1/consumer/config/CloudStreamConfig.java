@@ -2,6 +2,7 @@ package org.imd.kafka.sample1.consumer.config;
 
 import org.imd.kafka.sample1.consumer.model.event.AuctionBidEvent;
 import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
+import org.imd.kafka.sample1.consumer.model.event.AuctionFlushEvent;
 import org.imd.kafka.sample1.consumer.service.ArbiterService;
 import org.imd.kafka.sample1.consumer.service.AuctionService;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionAlreadyExistsException;
@@ -46,6 +47,18 @@ public class CloudStreamConfig {
                  } catch (AuctionNotExistException e) {
                      e.printStackTrace();
                  }
+            });
+    }
+
+    @Bean
+    public Consumer<Flux<AuctionFlushEvent>> auctionFlushEventConsumer() {
+        return (flux) -> flux
+            .subscribe(abEvent -> {
+                try {
+                    arbiterService.processAuctionFlush(abEvent);
+                } catch (AuctionNotExistException e) {
+                    e.printStackTrace();
+                }
             });
     }
 }

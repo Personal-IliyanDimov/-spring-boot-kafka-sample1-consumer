@@ -4,14 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.imd.kafka.sample1.consumer.model.domain.ArbiterData;
 import org.imd.kafka.sample1.consumer.model.event.AuctionBidEvent;
 import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
+import org.imd.kafka.sample1.consumer.model.event.AuctionFlushEvent;
 import org.imd.kafka.sample1.consumer.model.event.type.AuctionType;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionNotExistException;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionNotStartedException;
 import org.imd.kafka.sample1.consumer.service.strategy.ArbiterContext;
 import org.imd.kafka.sample1.consumer.service.strategy.ArbiterStrategy;
 
-import java.time.Period;
-import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 @RequiredArgsConstructor
@@ -56,8 +55,14 @@ public class ArbiterService {
         }
     }
 
+    public void processAuctionFlush(AuctionFlushEvent afEvent) throws AuctionNotExistException {
+        final ArbiterData<Long, AuctionEvent, AuctionBidEvent> arbiterData = arbiterStore.findArbiterData(afEvent.getAuctionId());
+        if (arbiterData == null) {
+            throw new AuctionNotExistException(afEvent.getAuctionId());
+        }
+        auctionStore.remove(afEvent.getAuctionId());
+        arbiterStore.removeArbiterData(afEvent.getAuctionId());
 
-    public List<ArbiterData> timeoutAuctions(Period timeoutPeriod) {
-        return null;
+        System.out.println(arbiterData.toString());
     }
 }
