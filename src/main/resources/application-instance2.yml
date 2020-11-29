@@ -4,6 +4,20 @@ server:
 spring:
   cloud:
     stream:
-      instanceIndex: 1
-      instanceCount: 3
+      function:
+        bindings:
+          auction-consumer:
+            consumer:
+              instanceIndex: 1
+              instanceCount: 3
+
+          auction-bid-consumer:
+            consumer:
+              instanceIndex: 1
+              instanceCount: 3
+
+          auction-flush-consumer:
+            consumer:
+              instanceIndex: 1
+              instanceCount: 3
 

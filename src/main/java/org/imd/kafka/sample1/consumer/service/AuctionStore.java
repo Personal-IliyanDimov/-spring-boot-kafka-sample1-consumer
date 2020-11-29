@@ -2,17 +2,16 @@ package org.imd.kafka.sample1.consumer.service;
 
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class AuctionStore<V,K> {
 
-    private HashMap<K,V> auctionMap;
+    private Map<K,V> auctionMap;
 
     public <K,V> AuctionStore() {
-        ConcurrentMap<K,V> auctionMap = new ConcurrentHashMap<>();
+        this.auctionMap = new ConcurrentHashMap<>();
     }
 
     public V findAuction(K key) {

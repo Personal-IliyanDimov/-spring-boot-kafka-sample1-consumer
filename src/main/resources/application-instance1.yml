@@ -15,3 +15,8 @@ spring:
             consumer:
               instanceIndex: 0
               instanceCount: 3
+
+          auction-flush-consumer:
+            consumer:
+              instanceIndex: 0
+              instanceCount: 3
