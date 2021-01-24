@@ -2,7 +2,7 @@ spring:
   cloud:
     stream:
       function:
-        definition: auctionEventConsumer;auctionBidEventConsumer;auctionFlushEventConsumer
+        definition: auctionEventConsumer;auctionBidEventConsumer;auctionFlushEventConsumer;
         bindings:
           auctionEventConsumer-in-0: auction-consumer
           auctionBidEventConsumer-in-0: auction-bid-consumer

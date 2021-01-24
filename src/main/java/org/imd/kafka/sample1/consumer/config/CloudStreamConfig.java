@@ -33,7 +33,7 @@ public class CloudStreamConfig {
                 } catch (AuctionAlreadyExistsException e) {
                     e.printStackTrace();
                 }
-            });
+            }, e -> System.out.println(e));
     }
 
     @Bean
@@ -47,7 +47,7 @@ public class CloudStreamConfig {
                  } catch (AuctionNotExistException e) {
                      e.printStackTrace();
                  }
-            });
+            }, e -> System.out.println(e) );
     }
 
     @Bean
@@ -59,6 +59,6 @@ public class CloudStreamConfig {
                 } catch (AuctionNotExistException e) {
                     e.printStackTrace();
                 }
-            });
+            }, e -> System.out.println(e));
     }
 }

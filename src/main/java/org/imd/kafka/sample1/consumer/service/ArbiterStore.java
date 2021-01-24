@@ -8,7 +8,7 @@ public class ArbiterStore<V, K> {
     private ConcurrentMap<K,V> arbiterMap;
 
     public <K,V> ArbiterStore() {
-        ConcurrentMap<K,V> arbiterMap = new ConcurrentHashMap<>();
+        this.arbiterMap = new ConcurrentHashMap<>();
     }
 
     public V findArbiterData(K key) {
