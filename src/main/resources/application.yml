@@ -14,18 +14,21 @@ spring:
             partitioned: true
           group: auction-group
           destination: "auction-topic"
+          retry-template-name: auctionRetryTemplate
           binder: kafka
         auction-bid-consumer:
           consumer:
             partitioned: true
           group: auction-bid-group
           destination: "auction-bid-topic"
+          retry-template-name: auctionBidRetryTemplate
           binder: kafka
         auction-flush-consumer:
           consumer:
             partitioned: true
           group: auction-flush-group
           destination: "auction-flush-topic"
+          retry-template-name: auctionFlushRetryTemplate
           binder: kafka
 
       kafka:
@@ -33,15 +36,18 @@ spring:
           auction-consumer:
             consumer:
               autoRebalanceEnabled: false
+              enableDlq: true
 
           auction-bid-consumer:
             consumer:
               autoRebalanceEnabled: false
+              enableDlq: true
             binder: kafka
 
           auction-flush-consumer:
             consumer:
               autoRebalanceEnabled: false
+              enableDlq: true
             binder: kafka
 
         binder:

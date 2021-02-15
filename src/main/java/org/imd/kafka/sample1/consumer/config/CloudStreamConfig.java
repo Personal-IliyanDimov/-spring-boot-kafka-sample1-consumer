@@ -4,7 +4,6 @@ import org.imd.kafka.sample1.consumer.model.event.AuctionBidEvent;
 import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
 import org.imd.kafka.sample1.consumer.model.event.AuctionFlushEvent;
 import org.imd.kafka.sample1.consumer.service.ArbiterService;
-import org.imd.kafka.sample1.consumer.service.AuctionService;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionAlreadyExistsException;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionNotExistException;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionNotStartedException;
@@ -19,9 +18,6 @@ import java.util.function.Consumer;
 public class CloudStreamConfig {
 
     @Autowired
-    private AuctionService auctionService;
-
-    @Autowired
     private ArbiterService arbiterService;
 
     @Bean
@@ -31,7 +27,7 @@ public class CloudStreamConfig {
             .metrics()
             .subscribe(aEvent -> {
                 try {
-                    auctionService.processAuction(aEvent);
+                    arbiterService.processAuction(aEvent);
                 } catch (AuctionAlreadyExistsException e) {
                     e.printStackTrace();
                 }

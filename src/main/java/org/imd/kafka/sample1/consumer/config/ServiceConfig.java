@@ -6,7 +6,6 @@ import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
 import org.imd.kafka.sample1.consumer.model.event.type.AuctionType;
 import org.imd.kafka.sample1.consumer.service.ArbiterService;
 import org.imd.kafka.sample1.consumer.service.ArbiterStore;
-import org.imd.kafka.sample1.consumer.service.AuctionService;
 import org.imd.kafka.sample1.consumer.service.AuctionStore;
 import org.imd.kafka.sample1.consumer.service.strategy.ArbiterStrategy;
 import org.imd.kafka.sample1.consumer.service.strategy.BestPriceStrategy;
@@ -31,11 +30,6 @@ public class ServiceConfig {
         strategyMap = new ConcurrentHashMap<>();
         strategyMap.put(AuctionType.HIT_THE_TARGET, new HitTheTargetStrategy());
         strategyMap.put(AuctionType.BEST_PRICE, new BestPriceStrategy());
-    }
-
-    @Bean
-    public AuctionService getAuctionService() {
-        return new AuctionService(auctionStore);
     }
 
     @Bean

@@ -6,11 +6,13 @@ import org.imd.kafka.sample1.consumer.model.event.AuctionBidEvent;
 import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
 import org.imd.kafka.sample1.consumer.model.event.AuctionFlushEvent;
 import org.imd.kafka.sample1.consumer.model.event.type.AuctionType;
+import org.imd.kafka.sample1.consumer.service.exception.AuctionAlreadyExistsException;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionNotExistException;
 import org.imd.kafka.sample1.consumer.service.exception.AuctionNotStartedException;
 import org.imd.kafka.sample1.consumer.service.strategy.ArbiterContext;
 import org.imd.kafka.sample1.consumer.service.strategy.ArbiterStrategy;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
 @RequiredArgsConstructor
@@ -18,6 +20,21 @@ public class ArbiterService {
     private final ArbiterStore<ArbiterData<Long, AuctionEvent, AuctionBidEvent>, Long> arbiterStore;
     private final AuctionStore<AuctionEvent, Long> auctionStore;
     private final ConcurrentMap<AuctionType, ArbiterStrategy> strategyMap;
+
+    public void processAuction(AuctionEvent auctionEvent) throws AuctionAlreadyExistsException {
+        final AuctionEvent existingAuctionEvent = auctionStore.findAuction(auctionEvent.getAuctionId());
+        if (Objects.nonNull(existingAuctionEvent)) {
+            throw new AuctionAlreadyExistsException(auctionEvent.getAuctionId());
+        }
+
+        // check strategy
+        final ArbiterStrategy arbiterStrategy = strategyMap.get(auctionEvent.getAuctionType());
+        if (arbiterStrategy == null) {
+            throw new IllegalStateException("Unknown auction type or arbiter strategy: " + auctionEvent.getAuctionType());
+        }
+
+        auctionStore.saveAuction(auctionEvent.getAuctionId(), auctionEvent);
+    }
 
     public void processAuctionBid(AuctionBidEvent auctionBidEvent) throws AuctionNotExistException, AuctionNotStartedException {
         // auction exists
@@ -49,7 +66,7 @@ public class ArbiterService {
 
         // check if bid is a winning bid
         final ArbiterContext context = new ArbiterContext(arbiterData, auctionBidEvent);
-        if (arbiterStrategy.isWinningBid(context) && arbiterStrategy.isBiddingStillAllowed(context)) {
+        if (arbiterStrategy.isBiddingStillAllowed(context) && arbiterStrategy.isWinningBid(context)) {
             arbiterData.setWinningBid(auctionBidEvent);
             arbiterStore.saveArbiterData(arbiterData.getKey(), arbiterData);
         }

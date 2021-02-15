@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class AuctionStore<V,K> {
 
-    private Map<K,V> auctionMap;
+    private final Map<K,V> auctionMap;
 
     public <K,V> AuctionStore() {
         this.auctionMap = new ConcurrentHashMap<>();
