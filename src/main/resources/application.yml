@@ -37,18 +37,19 @@ spring:
             consumer:
               autoRebalanceEnabled: false
               enableDlq: true
+              resetOffsets: true
 
           auction-bid-consumer:
             consumer:
               autoRebalanceEnabled: false
               enableDlq: true
-            binder: kafka
+              resetOffsets: true
 
           auction-flush-consumer:
             consumer:
               autoRebalanceEnabled: false
               enableDlq: true
-            binder: kafka
+              resetOffsets: true
 
         binder:
           brokers:
