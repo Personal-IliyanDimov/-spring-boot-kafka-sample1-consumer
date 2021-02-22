@@ -9,4 +9,5 @@ import lombok.ToString;
 @ToString
 public class AuctionFlushEvent {
     private Long auctionId;
+    private Boolean remove;
 }

@@ -37,19 +37,19 @@ spring:
             consumer:
               autoRebalanceEnabled: false
               enableDlq: true
-              resetOffsets: true
+              # resetOffsets: true
 
           auction-bid-consumer:
             consumer:
               autoRebalanceEnabled: false
               enableDlq: true
-              resetOffsets: true
+              # resetOffsets: true
 
           auction-flush-consumer:
             consumer:
               autoRebalanceEnabled: false
               enableDlq: true
-              resetOffsets: true
+              # resetOffsets: true
 
         binder:
           brokers:

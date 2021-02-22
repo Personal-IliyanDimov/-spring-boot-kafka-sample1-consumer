@@ -77,8 +77,11 @@ public class ArbiterService {
         if (arbiterData == null) {
             throw new AuctionNotExistException(afEvent.getAuctionId());
         }
-        auctionStore.remove(afEvent.getAuctionId());
-        arbiterStore.removeArbiterData(afEvent.getAuctionId());
+
+        if (Boolean.TRUE.equals(afEvent.getRemove())) {
+            auctionStore.remove(afEvent.getAuctionId());
+            arbiterStore.removeArbiterData(afEvent.getAuctionId());
+        }
 
         System.out.println(arbiterData.toString());
     }

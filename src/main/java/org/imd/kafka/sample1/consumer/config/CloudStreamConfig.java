@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.function.Consumer;
 
@@ -25,13 +26,15 @@ public class CloudStreamConfig {
         return (flux) -> flux
             .name("auction-event-metrics")
             .metrics()
+            .parallel()
+            .runOn(Schedulers.newElastic("auction-thread"))
             .subscribe(aEvent -> {
                 try {
                     arbiterService.processAuction(aEvent);
                 } catch (AuctionAlreadyExistsException e) {
                     e.printStackTrace();
                 }
-            }, e -> System.out.println(e));
+            }, e -> System.out.println(e) );
     }
 
     @Bean
@@ -39,6 +42,7 @@ public class CloudStreamConfig {
         return (flux) -> flux
             .name("auction-bid-event-metrics")
             .metrics()
+            //.publishOn(createFixedThreadPoolScheduler("auction-bid-thread"))
             .subscribe(abEvent -> {
                  try {
                     arbiterService.processAuctionBid(abEvent);
@@ -55,12 +59,13 @@ public class CloudStreamConfig {
         return (flux) -> flux
             .name("auction-flush-event-metrics")
             .metrics()
+            // .publishOn(createFixedThreadPoolScheduler("auction-flush-thread"))
             .subscribe(abEvent -> {
                 try {
                     arbiterService.processAuctionFlush(abEvent);
                 } catch (AuctionNotExistException e) {
                     e.printStackTrace();
                 }
-            }, e -> System.out.println(e));
+            }, e -> System.out.println(e) );
     }
 }
