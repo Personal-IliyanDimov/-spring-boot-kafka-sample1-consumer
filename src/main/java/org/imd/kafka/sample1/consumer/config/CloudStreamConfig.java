@@ -33,6 +33,8 @@ public class CloudStreamConfig {
                     arbiterService.processAuction(aEvent);
                 } catch (AuctionAlreadyExistsException e) {
                     e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
                 }
             }, e -> System.out.println(e) );
     }
@@ -42,13 +44,16 @@ public class CloudStreamConfig {
         return (flux) -> flux
             .name("auction-bid-event-metrics")
             .metrics()
-            //.publishOn(createFixedThreadPoolScheduler("auction-bid-thread"))
+            .parallel()
+            .runOn(Schedulers.newElastic("auction-thread"))
             .subscribe(abEvent -> {
                  try {
                     arbiterService.processAuctionBid(abEvent);
+                 } catch (AuctionNotExistException e) {
+                     e.printStackTrace();
                  } catch (AuctionNotStartedException e) {
                      e.printStackTrace();
-                 } catch (AuctionNotExistException e) {
+                 } catch (IllegalStateException e) {
                      e.printStackTrace();
                  }
             }, e -> System.out.println(e) );

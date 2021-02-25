@@ -1,6 +1,7 @@
 package org.imd.kafka.sample1.consumer.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.imd.kafka.sample1.consumer.model.domain.ArbiterData;
 import org.imd.kafka.sample1.consumer.model.event.AuctionBidEvent;
 import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
@@ -15,61 +16,63 @@ import org.imd.kafka.sample1.consumer.service.strategy.ArbiterStrategy;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
+@Slf4j
 @RequiredArgsConstructor
 public class ArbiterService {
     private final ArbiterStore<ArbiterData<Long, AuctionEvent, AuctionBidEvent>, Long> arbiterStore;
-    private final AuctionStore<AuctionEvent, Long> auctionStore;
     private final ConcurrentMap<AuctionType, ArbiterStrategy> strategyMap;
 
     public void processAuction(AuctionEvent auctionEvent) throws AuctionAlreadyExistsException {
-        final AuctionEvent existingAuctionEvent = auctionStore.findAuction(auctionEvent.getAuctionId());
-        if (Objects.nonNull(existingAuctionEvent)) {
+        ArbiterData<Long, AuctionEvent, AuctionBidEvent> arbiterData =
+            arbiterStore.findArbiterData(auctionEvent.getAuctionId());
+
+        if (Objects.isNull(arbiterData)) {
+            // prepare arbiter data
+            arbiterData = new ArbiterData<>(auctionEvent.getAuctionId(), auctionEvent);
+            arbiterData.setWinningBid(null);
+
+            arbiterStore.saveArbiterData(auctionEvent.getAuctionId(), arbiterData);
+        } else {
             throw new AuctionAlreadyExistsException(auctionEvent.getAuctionId());
         }
 
-        // check strategy
+        // check strategy exists
         final ArbiterStrategy arbiterStrategy = strategyMap.get(auctionEvent.getAuctionType());
         if (arbiterStrategy == null) {
             throw new IllegalStateException("Unknown auction type or arbiter strategy: " + auctionEvent.getAuctionType());
         }
-
-        auctionStore.saveAuction(auctionEvent.getAuctionId(), auctionEvent);
     }
 
     public void processAuctionBid(AuctionBidEvent auctionBidEvent) throws AuctionNotExistException, AuctionNotStartedException {
-        // auction exists
-        final AuctionEvent auction = auctionStore.findAuction(auctionBidEvent.getAuctionId());
-        if (auction == null) {
+
+        // check arbiter data
+        final ArbiterData<Long, AuctionEvent, AuctionBidEvent> arbiterData
+            = arbiterStore.findArbiterData(auctionBidEvent.getAuctionId());
+        if (arbiterData == null) {
             throw new AuctionNotExistException(auctionBidEvent.getAuctionId());
         }
 
-        // create initial arbiter data
-        ArbiterData<Long, AuctionEvent, AuctionBidEvent> arbiterData
-            = arbiterStore.findArbiterData(auctionBidEvent.getAuctionId());
-        if (arbiterData == null) {
-            arbiterData = new ArbiterData<>();
-            arbiterData.setKey(auction.getAuctionId());
-            arbiterData.setAuction(auction);
-            arbiterData.setWinningBid(null);
-        }
-
         // auction is open
+        final AuctionEvent auction = arbiterData.getAuction();
         if (auction.getStartDate().isAfter(auctionBidEvent.getBidDateTime())) {
             throw new AuctionNotStartedException(auction.getAuctionId(), auctionBidEvent.getAuctionBidId());
         }
 
-        // choose strategy
+        // choose strategy exists
         final ArbiterStrategy arbiterStrategy = strategyMap.get(auction.getAuctionType());
         if (arbiterStrategy == null) {
             throw new IllegalStateException("Unknown auction type or arbiter strategy: " + auction.getAuctionType());
         }
 
         // check if bid is a winning bid
-        final ArbiterContext context = new ArbiterContext(arbiterData, auctionBidEvent);
-        if (arbiterStrategy.isBiddingStillAllowed(context) && arbiterStrategy.isWinningBid(context)) {
-            arbiterData.setWinningBid(auctionBidEvent);
-            arbiterStore.saveArbiterData(arbiterData.getKey(), arbiterData);
+        ArbiterContext context;
+        do {
+            final AuctionBidEvent bestBid = arbiterData.getWinningBid().get();
+            context = new ArbiterContext(auction, bestBid, auctionBidEvent);
         }
+        while ( arbiterStrategy.isBiddingStillAllowed(context) &&
+                arbiterStrategy.isWinningBid(context) &&
+                (! arbiterData.getWinningBid().compareAndSet(context.getBestBid(), auctionBidEvent)));
     }
 
     public void processAuctionFlush(AuctionFlushEvent afEvent) throws AuctionNotExistException {
@@ -79,7 +82,6 @@ public class ArbiterService {
         }
 
         if (Boolean.TRUE.equals(afEvent.getRemove())) {
-            auctionStore.remove(afEvent.getAuctionId());
             arbiterStore.removeArbiterData(afEvent.getAuctionId());
         }
 

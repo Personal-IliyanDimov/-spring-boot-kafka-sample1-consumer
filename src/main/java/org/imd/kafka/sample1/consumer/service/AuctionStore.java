@@ -2,13 +2,13 @@ package org.imd.kafka.sample1.consumer.service;
 
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class AuctionStore<V,K> {
 
-    private final Map<K,V> auctionMap;
+    private final ConcurrentMap<K,V> auctionMap;
 
     public <K,V> AuctionStore() {
         this.auctionMap = new ConcurrentHashMap<>();

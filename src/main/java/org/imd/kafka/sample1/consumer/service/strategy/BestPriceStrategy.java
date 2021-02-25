@@ -1,10 +1,12 @@
 package org.imd.kafka.sample1.consumer.service.strategy;
 
 import org.imd.kafka.sample1.consumer.model.event.AuctionBidEvent;
-import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
 import org.imd.kafka.sample1.consumer.model.event.type.AuctionType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class BestPriceStrategy implements ArbiterStrategy {
+
     @Override
     public AuctionType getType() {
         return AuctionType.BEST_PRICE;
@@ -12,32 +14,20 @@ public class BestPriceStrategy implements ArbiterStrategy {
 
     @Override
     public boolean isWinningBid(ArbiterContext context) {
-        if (isBidAboveAuctionTarget(context)) {
-            if (isArbiterInitialPrice(context)) {
-                return true;
-            } else if (isBetterBid(context)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean isBidAboveAuctionTarget(ArbiterContext context) {
-        final AuctionEvent auction = context.getArbiterData().getAuction();
-        final AuctionBidEvent auctionBidEvent = context.getAuctionBidEvent();
-
-        return (auction.getTargetPrice().compareTo(auctionBidEvent.getBidPrice()) < 1);
-    }
-
-    private boolean isArbiterInitialPrice(ArbiterContext context) {
-        return context.getArbiterData().getWinningBid() == null;
+        return isBetterBid(context);
     }
 
     private boolean isBetterBid(ArbiterContext context) {
-        final AuctionBidEvent arbiterBid = context.getArbiterData().getWinningBid();
-        final AuctionBidEvent pretenderBid = context.getAuctionBidEvent();
-        return (arbiterBid.getBidPrice().compareTo(pretenderBid.getBidPrice()) == -1);
+        final AuctionBidEvent bestBid = context.getBestBid();
+        final AuctionBidEvent pretenderBid = context.getPretenderBid();
+        return isInitialBid(bestBid, pretenderBid) || isGreaterBid(bestBid, pretenderBid);
+    }
+    private boolean isInitialBid(AuctionBidEvent bestBid, AuctionBidEvent pretenderBid) {
+        return (bestBid == null) && (pretenderBid != null);
+    }
+
+    private boolean isGreaterBid(AuctionBidEvent bestBid, AuctionBidEvent pretenderBid) {
+        return bestBid.getBidPrice().compareTo(pretenderBid.getBidPrice()) == -1;
     }
 
     @Override

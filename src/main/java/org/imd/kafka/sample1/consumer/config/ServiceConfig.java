@@ -6,34 +6,35 @@ import org.imd.kafka.sample1.consumer.model.event.AuctionEvent;
 import org.imd.kafka.sample1.consumer.model.event.type.AuctionType;
 import org.imd.kafka.sample1.consumer.service.ArbiterService;
 import org.imd.kafka.sample1.consumer.service.ArbiterStore;
-import org.imd.kafka.sample1.consumer.service.AuctionStore;
 import org.imd.kafka.sample1.consumer.service.strategy.ArbiterStrategy;
-import org.imd.kafka.sample1.consumer.service.strategy.BestPriceStrategy;
-import org.imd.kafka.sample1.consumer.service.strategy.HitTheTargetStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Configuration
 public class ServiceConfig {
 
-    private ArbiterStore<ArbiterData<Long, AuctionEvent, AuctionBidEvent>, Long> arbiterStore;
-    private AuctionStore<AuctionEvent, Long> auctionStore;
+    @Autowired
+    private List<ArbiterStrategy> arbiterStrategies;
+
     private ConcurrentMap<AuctionType, ArbiterStrategy> strategyMap;
 
-    public ServiceConfig() {
-        arbiterStore = new ArbiterStore<>();
-        auctionStore = new AuctionStore<>();
-
+    @PostConstruct
+    protected void postConstruct() {
         strategyMap = new ConcurrentHashMap<>();
-        strategyMap.put(AuctionType.HIT_THE_TARGET, new HitTheTargetStrategy());
-        strategyMap.put(AuctionType.BEST_PRICE, new BestPriceStrategy());
+        arbiterStrategies.stream().forEach(
+            s -> strategyMap.putIfAbsent(s.getType(), s)
+        );
     }
 
     @Bean
     public ArbiterService getArbiterService() {
-        return new ArbiterService(arbiterStore, auctionStore, strategyMap);
+        final ArbiterStore<ArbiterData<Long, AuctionEvent, AuctionBidEvent>, Long> arbiterStore = new ArbiterStore<>();
+        return new ArbiterService(arbiterStore, strategyMap);
     }
 }
