@@ -15,6 +15,6 @@ public class ArbiterData<K, A, B> {
 
     private final K key;
     private final A auction;
-    private volatile AtomicReference<B> winningBid;
+    private final AtomicReference<B> winningBid;
 
 }

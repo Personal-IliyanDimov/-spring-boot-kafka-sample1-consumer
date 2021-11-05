@@ -15,6 +15,7 @@ import org.imd.kafka.sample1.consumer.service.strategy.ArbiterStrategy;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,8 +29,7 @@ public class ArbiterService {
 
         if (Objects.isNull(arbiterData)) {
             // prepare arbiter data
-            arbiterData = new ArbiterData<>(auctionEvent.getAuctionId(), auctionEvent);
-            arbiterData.setWinningBid(null);
+            arbiterData = new ArbiterData<>(auctionEvent.getAuctionId(), auctionEvent, new AtomicReference<>(null));
 
             arbiterStore.saveArbiterData(auctionEvent.getAuctionId(), arbiterData);
         } else {
