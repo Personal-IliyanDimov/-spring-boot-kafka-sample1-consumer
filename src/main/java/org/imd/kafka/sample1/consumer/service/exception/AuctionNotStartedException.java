@@ -4,6 +4,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class AuctionNotStartedException extends Exception {
-    private final Long auctionId;
-    private final Long actionBiddingId;
+    private final String auctionId;
+    private final String actionBiddingId;
 }

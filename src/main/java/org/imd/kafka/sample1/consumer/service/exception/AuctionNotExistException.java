@@ -4,5 +4,5 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class AuctionNotExistException extends Exception {
-    private final Long auctionId;
+    private final String auctionId;
 }

@@ -8,6 +8,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class AuctionFlushEvent {
-    private Long auctionId;
+    private String auctionId;
     private Boolean remove;
 }

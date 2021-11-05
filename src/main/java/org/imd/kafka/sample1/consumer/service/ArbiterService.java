@@ -20,11 +20,11 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 @RequiredArgsConstructor
 public class ArbiterService {
-    private final ArbiterStore<ArbiterData<Long, AuctionEvent, AuctionBidEvent>, Long> arbiterStore;
+    private final ArbiterStore<ArbiterData<String, AuctionEvent, AuctionBidEvent>, String> arbiterStore;
     private final ConcurrentMap<AuctionType, ArbiterStrategy> strategyMap;
 
     public void processAuction(AuctionEvent auctionEvent) throws AuctionAlreadyExistsException {
-        ArbiterData<Long, AuctionEvent, AuctionBidEvent> arbiterData =
+        ArbiterData<String, AuctionEvent, AuctionBidEvent> arbiterData =
             arbiterStore.findArbiterData(auctionEvent.getAuctionId());
 
         if (Objects.isNull(arbiterData)) {
@@ -46,7 +46,7 @@ public class ArbiterService {
     public void processAuctionBid(AuctionBidEvent auctionBidEvent) throws AuctionNotExistException, AuctionNotStartedException {
 
         // check arbiter data
-        final ArbiterData<Long, AuctionEvent, AuctionBidEvent> arbiterData
+        final ArbiterData<String, AuctionEvent, AuctionBidEvent> arbiterData
             = arbiterStore.findArbiterData(auctionBidEvent.getAuctionId());
         if (arbiterData == null) {
             throw new AuctionNotExistException(auctionBidEvent.getAuctionId());
@@ -76,7 +76,7 @@ public class ArbiterService {
     }
 
     public void processAuctionFlush(AuctionFlushEvent afEvent) throws AuctionNotExistException {
-        final ArbiterData<Long, AuctionEvent, AuctionBidEvent> arbiterData = arbiterStore.findArbiterData(afEvent.getAuctionId());
+        final ArbiterData<String, AuctionEvent, AuctionBidEvent> arbiterData = arbiterStore.findArbiterData(afEvent.getAuctionId());
         if (arbiterData == null) {
             throw new AuctionNotExistException(afEvent.getAuctionId());
         }

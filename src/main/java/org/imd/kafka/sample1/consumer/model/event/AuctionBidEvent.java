@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class AuctionBidEvent {
-    private Long auctionBidId;
-    private Long auctionId;
-    private Long userId;
+    private String auctionBidId;
+    private String auctionId;
+    private String userId;
     private BigDecimal bidPrice;
     private LocalDateTime bidDateTime;
 }

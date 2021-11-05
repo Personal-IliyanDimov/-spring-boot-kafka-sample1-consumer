@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class AuctionEvent {
-    private Long auctionId;
+    private String auctionId;
     private AuctionType auctionType;
     private Long itemId;
     private BigDecimal targetPrice;

@@ -34,7 +34,7 @@ public class ServiceConfig {
 
     @Bean
     public ArbiterService getArbiterService() {
-        final ArbiterStore<ArbiterData<Long, AuctionEvent, AuctionBidEvent>, Long> arbiterStore = new ArbiterStore<>();
+        final ArbiterStore<ArbiterData<String, AuctionEvent, AuctionBidEvent>, String> arbiterStore = new ArbiterStore<>();
         return new ArbiterService(arbiterStore, strategyMap);
     }
 }
