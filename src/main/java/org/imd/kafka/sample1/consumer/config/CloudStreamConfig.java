@@ -24,7 +24,7 @@ public class CloudStreamConfig {
     @Bean
     public Consumer<Flux<AuctionEvent>> auctionEventConsumer() {
         return (flux) -> flux
-            .name("auction-event-metrics")
+            .name("consumer-metrics-auction")
             .metrics()
             .parallel()
             .runOn(Schedulers.newElastic("auction-thread"))
@@ -42,10 +42,10 @@ public class CloudStreamConfig {
     @Bean
     public Consumer<Flux<AuctionBidEvent>> auctionBidEventConsumer() {
         return (flux) -> flux
-            .name("auction-bid-event-metrics")
+            .name("consumer-metrics-auction-bid")
             .metrics()
             .parallel()
-            .runOn(Schedulers.newElastic("auction-thread"))
+            .runOn(Schedulers.newElastic("auction-bid-thread"))
             .subscribe(abEvent -> {
                  try {
                     arbiterService.processAuctionBid(abEvent);
@@ -62,9 +62,10 @@ public class CloudStreamConfig {
     @Bean
     public Consumer<Flux<AuctionFlushEvent>> auctionFlushEventConsumer() {
         return (flux) -> flux
-            .name("auction-flush-event-metrics")
+            .name("consumer-metrics-auction-flush")
             .metrics()
-            // .publishOn(createFixedThreadPoolScheduler("auction-flush-thread"))
+            .parallel()
+            .runOn(Schedulers.newElastic("auction-flush-thread"))
             .subscribe(abEvent -> {
                 try {
                     arbiterService.processAuctionFlush(abEvent);
